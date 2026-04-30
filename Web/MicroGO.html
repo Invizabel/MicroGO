@@ -4,14 +4,25 @@
     </body>
     <script>
 		var ratio = 8;
+		var c1x = 0;
+		var c1y = 0;
+		var board = [[0,0,0,0],
+					 [0,0,0,0],
+					 [0,0,0,0],
+					 [0,0,0,0]]
 		
         var canvas = document.getElementById("canvas");
         var context = canvas.getContext("2d");
 		
-		function board()
+		function main()
 		{
 			context.fillStyle = "orange";
 			context.fillRect(0, 0, canvas.width, canvas.height);
+			
+			context.beginPath();
+			context.arc(48*ratio+(4*ratio)+(c1x*ratio)*8+1,16*ratio+(4*ratio)+(c1y*ratio)*8+1,4*ratio, 0, 2 * Math.PI);
+			context.stroke();
+
 			for (var i = 48; i < 128-48; i += 8)
 			{
 				for (var j = 16; j < 64-16; j += 8)
@@ -21,27 +32,92 @@
 					context.stroke();
 				}
 			}
+
+			for (var i = 0; i < 4; i += 1)
+			{
+				for (var j = 0; j < 4; j += 1)
+				{
+					if (board[j][i] == 1)
+					{
+						context.beginPath();
+						context.arc(48*ratio+(4*ratio)+(i*ratio)*8+1,16*ratio+(4*ratio)+(j*ratio)*8+1,2*ratio, 0, 2 * Math.PI);
+						context.fillStyle = "black";
+						context.fill();
+						context.stroke();
+					}
+					if (board[j][i] == 2)
+					{
+						context.beginPath();
+						context.arc(48*ratio+(4*ratio)+(i*ratio)*8+1,16*ratio+(4*ratio)+(j*ratio)*8+1,2*ratio, 0, 2 * Math.PI);
+						context.fillStyle = "white";
+						context.fill();
+						context.stroke();
+					}
+				}
+			}
 		}
-		
-		function choice()
+
+		document.addEventListener("keydown", function (event)
 		{
-			context.beginPath();
-			context.arc(48*ratio+4*ratio,16*ratio+4*ratio,4*ratio, 0, 2 * Math.PI);
-			context.stroke();
-		}
+			if (event.code === "ArrowUp" || event.code === "KeyW")
+			{
+				if (c1y > 0)
+				{
+					c1y -= 1;
+					main();
+				}
+			}
+
+			if (event.code === "ArrowDown" || event.code === "KeyS")
+			{
+				if (c1y < 3)
+				{
+					c1y += 1;
+					main();
+				}
+			}
+
+			if (event.code === "ArrowLeft" || event.code === "KeyA")
+			{
+				if (c1x > 0)
+				{
+					c1x -= 1;
+					main();
+				}
+			}
+
+			if (event.code === "ArrowRight" || event.code === "KeyD")
+			{
+				if (c1x < 3)
+				{
+					c1x += 1;
+					main();
+				}
+			}
+
+			if (event.code === "Space")
+			{
+				console.log(c1x, c1y);
+				if (board[c1y][c1x] == 0)
+				{
+					board[c1y][c1x] = 1;
+					while (true)
+					{
+						var x = Math.floor(Math.random() * 4);
+						var y = Math.floor(Math.random() * 4);
+						if (board[y][x] == 0)
+						{
+							board[y][x] = 2;
+							break;
+						}
+					}
+				}
+				
+				main();
+			}
+		});
 		
-		function player1()
-		{
-			context.beginPath();
-			context.arc(48*ratio+4*ratio,16*ratio+4*ratio,2*ratio, 0, 2 * Math.PI);
-			context.fillStyle = "black";
-			context.fill();
-			context.stroke();
-		}
-		
-		board();
-		choice();
-		player1();
+		main();
 	
     </script>
 </html>

@@ -6,45 +6,135 @@
 		var ratio = 8;
 		var c1x = 0;
 		var c1y = 0;
-		var board = [[0,0,0,0],
-					 [0,0,0,0],
-					 [0,0,0,0],
-					 [0,0,0,0]]
+		var board_size = 9;
+		var board = [];
+		var cell_size= Math.round(64 / board_size);
+		var cell_center = 128 - cell_size * board_size;
+		for (var i = 0; i < board_size; i += 1)
+		{
+			temp = [];
+			for (var j = 0; j < board_size; j += 1)
+			{
+				temp.push(0);
+			}
+			board.push(temp);
+		}
 		
         var canvas = document.getElementById("canvas");
         var context = canvas.getContext("2d");
 		
-		function capture()
+		function black_groupings()
 		{
-			var directions = [[1,0],[-1,0],[0,1],[0,-1]];
-
-			for (var y = 0; y < board.length; y += 1)
+			var groups = [];
+					
+			for (var i = 0; i < board_size; i += 1)
 			{
-				for (var x = 0; x < board.length; x += 1)
+				for (var j = 0; j < board_size; j += 1)
 				{
-					var color = board[y][x];
-					var has_liberty = false;
-
-					for (var i = 0; i < 4; i += 1)
+					
+					var temp = []
+					if (1 == board[j][i])
 					{
-						var nx = x + directions[i][0];
-						var ny = y + directions[i][1];
-
-						if (ny >= 0 && ny < board.length && nx >= 0 && nx < board[0].length)
+						if (i < board_size)
 						{
-							if (board[ny][nx] === 0)
+							if (1 == board[j][i+1])
 							{
-								has_liberty = true;
+								if (temp.includes([i,j]))
+								{
+									temp.push([i,j]);
+								}
+								temp.push([i+1,j]);
+							}
+						}
+						if (j < board_size)
+						{
+							if (1 == board[j+1][i])
+							{
+								if (temp.includes([i,j]))
+								{
+									temp.push([i,j]);
+								}
+								temp.push([i,j+1]);
+							}
+						}
+						if (i > 0)
+						{
+							if (1 == board[j][i-1])
+							{
+								if (temp.includes([i,j]))
+								{
+									temp.push([i,j]);
+								}
+								temp.push([i-1,j]);
+							}
+						}
+						if (j > 0)
+						{
+							if (1 == board[j-1][i])
+							{
+								if (temp.includes([i,j]))
+								{
+									temp.push([i,j]);
+								}
+								temp.push([i,j-1]);
+							}
+						}
+						if (i < board_size && j < board_size)
+						{
+							if (1 == board[j+1][i+1])
+							{
+								if (temp.includes([i,j]))
+								{
+									temp.push([i,j]);
+								}
+								temp.push([i+1,j+1]);
+							}
+						}
+						if (i > 0 && j > 0)
+						{
+							if (1 == board[j-1][i-1])
+							{
+								if (temp.includes([i,j]))
+								{
+									temp.push([i,j]);
+								}
+								temp.push([i-1,j-1]);
 							}
 						}
 					}
-
-					if (!has_liberty)
+					
+					if (temp.length > 0)
 					{
-						board[y][x] = 0;
+						is_skip = false;
+						for (var k = 0; k < groups.length; k += 1)
+						{
+							for (var kk = 0; kk < k.length; kk += 1)
+							{
+								for (var l = 0; l < temp.length; l += 1)
+								{
+									if (groups[k][kk] == temp[l])
+									{
+										is_skip = true;
+									}
+								}
+							}
+						}
+
+						if (is_skip == false)
+						{
+							groups.push(temp);
+						}
 					}
 				}
 			}
+
+			return groups;
+		}
+
+		function capture()
+		{
+			var black_groups = black_groupings();
+			console.log(black_groups);
 		}
 
 		function main()
@@ -55,27 +145,27 @@
 			context.fillRect(0, 0, canvas.width, canvas.height);
 			
 			context.beginPath();
-			context.arc(48*ratio+(4*ratio)+(c1x*ratio)*8+1,16*ratio+(4*ratio)+(c1y*ratio)*8+1,4*ratio, 0, 2 * Math.PI);
+			context.arc(Math.round((c1x + 0.5) * (cell_size*ratio)), Math.round((c1y + 0.5) * (cell_size*ratio)), Math.round(cell_size * ratio / 2), 0, 2 * Math.PI);
 			context.stroke();
 
-			for (var i = 48; i < 128-48; i += 8)
+			for (var i = 0; i < board_size; i += 1)
 			{
-				for (var j = 16; j < 64-16; j += 8)
+				for (var j = 0; j < board_size; j += 1)
 				{
 					context.beginPath();
-					context.rect(i*ratio, j*ratio, 8*ratio, 8*ratio);
+					context.rect(i*ratio*cell_size, j*ratio*cell_size, ratio*cell_size, ratio*cell_size);
 					context.stroke();
 				}
 			}
 
-			for (var i = 0; i < 4; i += 1)
+			for (var i = 0; i < board_size; i += 1)
 			{
-				for (var j = 0; j < 4; j += 1)
+				for (var j = 0; j < board_size; j += 1)
 				{
 					if (board[j][i] == 1)
 					{
 						context.beginPath();
-						context.arc(48*ratio+(4*ratio)+(i*ratio)*8+1,16*ratio+(4*ratio)+(j*ratio)*8+1,2*ratio, 0, 2 * Math.PI);
+						context.arc(Math.round((i + 0.5) * (cell_size*ratio)), Math.round((j + 0.5) * (cell_size*ratio)), Math.round(cell_size * ratio / 2 / 2), 0, 2 * Math.PI);
 						context.fillStyle = "black";
 						context.fill();
 						context.stroke();
@@ -83,7 +173,7 @@
 					if (board[j][i] == 2)
 					{
 						context.beginPath();
-						context.arc(48*ratio+(4*ratio)+(i*ratio)*8+1,16*ratio+(4*ratio)+(j*ratio)*8+1,2*ratio, 0, 2 * Math.PI);
+						context.arc(Math.round((i + 0.5) * (cell_size*ratio)), Math.round((j + 0.5) * (cell_size*ratio)), Math.round(cell_size * ratio / 2 / 2), 0, 2 * Math.PI);
 						context.fillStyle = "white";
 						context.fill();
 						context.stroke();
@@ -105,7 +195,7 @@
 
 			if (event.code === "ArrowDown" || event.code === "KeyS")
 			{
-				if (c1y < 3)
+				if (c1y < board_size - 1)
 				{
 					c1y += 1;
 					main();
@@ -123,7 +213,7 @@
 
 			if (event.code === "ArrowRight" || event.code === "KeyD")
 			{
-				if (c1x < 3)
+				if (c1x < board_size - 1)
 				{
 					c1x += 1;
 					main();
@@ -132,14 +222,13 @@
 
 			if (event.code === "Space")
 			{
-				console.log(c1x, c1y);
 				if (board[c1y][c1x] == 0)
 				{
 					board[c1y][c1x] = 1;
 					while (true)
 					{
-						var x = Math.floor(Math.random() * 4);
-						var y = Math.floor(Math.random() * 4);
+						var x = Math.floor(Math.random() * board_size);
+						var y = Math.floor(Math.random() * board_size);
 						if (board[y][x] == 0)
 						{
 							board[y][x] = 2;

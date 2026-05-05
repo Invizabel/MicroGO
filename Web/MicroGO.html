@@ -14,8 +14,43 @@
         var canvas = document.getElementById("canvas");
         var context = canvas.getContext("2d");
 		
+		function capture()
+		{
+			var directions = [[1,0],[-1,0],[0,1],[0,-1]];
+
+			for (var y = 0; y < board.length; y += 1)
+			{
+				for (var x = 0; x < board.length; x += 1)
+				{
+					var color = board[y][x];
+					var has_liberty = false;
+
+					for (var i = 0; i < 4; i += 1)
+					{
+						var nx = x + directions[i][0];
+						var ny = y + directions[i][1];
+
+						if (ny >= 0 && ny < board.length && nx >= 0 && nx < board[0].length)
+						{
+							if (board[ny][nx] === 0)
+							{
+								has_liberty = true;
+							}
+						}
+					}
+
+					if (!has_liberty)
+					{
+						board[y][x] = 0;
+					}
+				}
+			}
+		}
+
 		function main()
 		{
+			capture();
+
 			context.fillStyle = "orange";
 			context.fillRect(0, 0, canvas.width, canvas.height);
 			
